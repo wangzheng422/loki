@@ -1,0 +1,763 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  generateName: loki-operator-controller-manager-69b5c65b64-
+  annotations:
+    olm.skipRange: '>=6.0.0-0 <6.2.1'
+    openshift.io/scc: restricted-v2
+    features.operators.openshift.io/token-auth-azure: 'true'
+    operators.openshift.io/valid-subscription: '["OpenShift Container Platform", "OpenShift Platform Plus"]'
+    operators.operatorframework.io/builder: operator-sdk-unknown
+    features.operators.openshift.io/token-auth-gcp: 'true'
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+    certified: 'false'
+    olm.targetNamespaces: ''
+    k8s.ovn.org/pod-networks: '{"default":{"ip_addresses":["10.131.0.11/23"],"mac_address":"0a:58:0a:83:00:0b","gateway_ips":["10.131.0.1"],"routes":[{"dest":"10.128.0.0/14","nextHop":"10.131.0.1"},{"dest":"172.30.0.0/16","nextHop":"10.131.0.1"},{"dest":"169.254.0.5/32","nextHop":"10.131.0.1"},{"dest":"100.64.0.0/16","nextHop":"10.131.0.1"}],"ip_address":"10.131.0.11/23","gateway_ip":"10.131.0.1","role":"primary"}}'
+    operatorframework.io/properties: '{"properties":[{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"AlertingRule","version":"v1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"AlertingRule","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"LokiStack","version":"v1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"LokiStack","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"RecordingRule","version":"v1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"RecordingRule","version":"v1beta1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"RulerConfig","version":"v1"}},{"type":"olm.gvk","value":{"group":"loki.grafana.com","kind":"RulerConfig","version":"v1beta1"}},{"type":"olm.maxOpenShiftVersion","value":4.19},{"type":"olm.package","value":{"packageName":"loki-operator","version":"6.2.1"}}]}'
+    features.operators.openshift.io/token-auth-aws: 'true'
+    support: AOS Cluster Logging
+    operatorframework.io/cluster-monitoring: 'true'
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "loki.grafana.com/v1",
+          "kind": "AlertingRule",
+          "metadata": {
+            "name": "alertingrule-sample"
+          },
+          "spec": {
+            "groups": [
+              {
+                "interval": "10m",
+                "name": "alerting-rules-group",
+                "rules": [
+                  {
+                    "alert": "HighPercentageError",
+                    "annotations": {
+                      "summary": "High request latency"
+                    },
+                    "expr": "sum(rate({app=\"foo\", env=\"production\"} |= \"error\" [5m])) by (job)\n  /\nsum(rate({app=\"foo\", env=\"production\"}[5m])) by (job)\n  \u003e 0.05\n",
+                    "for": "10m",
+                    "labels": {
+                      "severity": "page"
+                    }
+                  },
+                  {
+                    "alert": "HttpCredentialsLeaked",
+                    "annotations": {
+                      "message": "{{ $labels.job }} is leaking http basic auth credentials."
+                    },
+                    "expr": "sum by (cluster, job, pod) (count_over_time({namespace=\"prod\"} |~ \"http(s?)://(\\\\w+):(\\\\w+)@\" [5m]) \u003e 0)",
+                    "for": "10m",
+                    "labels": {
+                      "severity": "critical"
+                    }
+                  }
+                ]
+              }
+            ],
+            "tenantID": "test-tenant"
+          }
+        },
+        {
+          "apiVersion": "loki.grafana.com/v1",
+          "kind": "LokiStack",
+          "metadata": {
+            "name": "lokistack-sample"
+          },
+          "spec": {
+            "size": "1x.small",
+            "storage": {
+              "secret": {
+                "name": "test"
+              }
+            },
+            "storageClassName": "standard"
+          }
+        },
+        {
+          "apiVersion": "loki.grafana.com/v1",
+          "kind": "RecordingRule",
+          "metadata": {
+            "name": "recordingrule-sample"
+          },
+          "spec": {
+            "groups": [
+              {
+                "interval": "10m",
+                "name": "recording-rules-group",
+                "rules": [
+                  {
+                    "expr": "sum(rate({container=\"myservice\"}[10m]))\n",
+                    "record": "myservice:requests:rate10m"
+                  },
+                  {
+                    "expr": "sum(rate({container=\"otherservice\"}[1m]))\n",
+                    "record": "otherservice:requests:rate1m"
+                  }
+                ]
+              }
+            ],
+            "tenantID": "test-tenant"
+          }
+        },
+        {
+          "apiVersion": "loki.grafana.com/v1",
+          "kind": "RulerConfig",
+          "metadata": {
+            "name": "rulerconfig-sample"
+          },
+          "spec": {
+            "alertmanager": {
+              "discovery": {
+                "enableSRV": true,
+                "refreshInterval": "1m"
+              },
+              "enableV2": true,
+              "endpoints": [
+                "http://alertmanager-host1.mycompany.org",
+                "http://alertmanager-host2.mycompany.org"
+              ],
+              "externalLabels": {
+                "environment": "production",
+                "region": "us-east-2"
+              },
+              "externalUrl": "http://www.mycompany.org/alerts",
+              "notificationQueue": {
+                "capacity": 1000,
+                "forGracePeriod": "10m",
+                "forOutageTolerance": "1h",
+                "resendDelay": "1m",
+                "timeout": "30s"
+              }
+            },
+            "evaluationInterval": "1m",
+            "pollInterval": "1m",
+            "remoteWrite": {
+              "client": {
+                "authorization": "basic",
+                "authorizationSecretName": "my-secret-resource",
+                "name": "remote-write-log-metrics",
+                "proxyUrl": "http://proxy-host.mycompany.org",
+                "relabelConfigs": [
+                  {
+                    "action": "replace",
+                    "regex": "ALERTS.*",
+                    "replacement": "$1",
+                    "separator": "",
+                    "sourceLabels": [
+                      "labelc",
+                      "labeld"
+                    ],
+                    "targetLabel": "labelnew"
+                  }
+                ],
+                "timeout": "30s",
+                "url": "http://remote-write-host.mycompany.org"
+              },
+              "enabled": true,
+              "refreshPeriod": "10s"
+            }
+          }
+        }
+      ]
+    seccomp.security.alpha.kubernetes.io/pod: runtime/default
+    kubectl.kubernetes.io/default-container: manager
+    k8s.v1.cni.cncf.io/network-status: |-
+      [{
+          "name": "ovn-kubernetes",
+          "interface": "eth0",
+          "ips": [
+              "10.131.0.11"
+          ],
+          "mac": "0a:58:0a:83:00:0b",
+          "default": true,
+          "dns": {}
+      }]
+    capabilities: Full Lifecycle
+    features.operators.openshift.io/fips-compliant: 'true'
+    olm.operatorNamespace: openshift-operators-redhat
+    containerImage: 'registry.redhat.io/openshift-logging/loki-rhel9-operator@sha256:cb628bbe29488d11135e54c4203a83aeec777c445a96f44291b94e106db3bebf'
+    createdAt: '2025-02-18T18:01:39Z'
+    olmcahash: 45e50f6ebd3955e64506b5a0423b71f6606f27d776a9ffb2683415324592383d
+    categories: 'OpenShift Optional, Logging & Tracing'
+    features.operators.openshift.io/proxy-aware: 'true'
+    operatorframework.io/suggested-namespace: openshift-operators-redhat
+    description: |
+      The Loki Operator for OCP provides a means for configuring and managing a Loki stack for cluster logging.
+      ## Prerequisites and Requirements
+      ### Loki Operator Namespace
+      The Loki Operator must be deployed to the global operator group namespace `openshift-operators-redhat`.
+      ### Memory Considerations
+      Loki is a memory intensive application.  The initial
+      set of OCP nodes may not be large enough to support the Loki stack.  Additional OCP nodes must be added
+      to the OCP cluster if you desire to run with the recommended (or better) memory.
+    olm.operatorGroup: openshift-operators-redhat-hhb6m
+    features.operators.openshift.io/disconnected: 'true'
+    features.operators.openshift.io/tls-profiles: 'true'
+  resourceVersion: '1273795'
+  name: loki-operator-controller-manager-69b5c65b64-4k4tf
+  uid: 5175e99f-2a3a-41db-a086-98bc8099ec9a
+  creationTimestamp: '2025-04-24T09:48:01Z'
+  managedFields:
+    - manager: ip-10-0-3-129
+      operation: Update
+      apiVersion: v1
+      time: '2025-04-24T09:48:01Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:k8s.ovn.org/pod-networks': {}
+      subresource: status
+    - manager: kube-controller-manager
+      operation: Update
+      apiVersion: v1
+      time: '2025-04-24T09:48:01Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:kubectl.kubernetes.io/default-container': {}
+            'f:features.operators.openshift.io/token-auth-aws': {}
+            'f:olm.operatorNamespace': {}
+            'f:createdAt': {}
+            'f:features.operators.openshift.io/proxy-aware': {}
+            'f:olmcahash': {}
+            'f:alm-examples': {}
+            'f:description': {}
+            'f:olm.operatorGroup': {}
+            'f:capabilities': {}
+            'f:features.operators.openshift.io/fips-compliant': {}
+            'f:olm.skipRange': {}
+            .: {}
+            'f:operators.openshift.io/valid-subscription': {}
+            'f:containerImage': {}
+            'f:categories': {}
+            'f:operatorframework.io/suggested-namespace': {}
+            'f:operators.operatorframework.io/project_layout': {}
+            'f:features.operators.openshift.io/disconnected': {}
+            'f:features.operators.openshift.io/tls-profiles': {}
+            'f:certified': {}
+            'f:operatorframework.io/properties': {}
+            'f:features.operators.openshift.io/token-auth-azure': {}
+            'f:operators.operatorframework.io/builder': {}
+            'f:features.operators.openshift.io/token-auth-gcp': {}
+            'f:support': {}
+            'f:olm.targetNamespaces': {}
+            'f:operatorframework.io/cluster-monitoring': {}
+          'f:generateName': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/managed-by': {}
+            'f:app.kubernetes.io/name': {}
+            'f:app.kubernetes.io/part-of': {}
+            'f:name': {}
+            'f:pod-template-hash': {}
+          'f:ownerReferences':
+            .: {}
+            'k:{"uid":"0a32380b-d33b-42d9-a6ba-e5b9b25dffd2"}': {}
+        'f:spec':
+          'f:volumes':
+            .: {}
+            'k:{"name":"apiservice-cert"}':
+              .: {}
+              'f:name': {}
+              'f:secret':
+                .: {}
+                'f:defaultMode': {}
+                'f:items': {}
+                'f:secretName': {}
+            'k:{"name":"loki-operator-metrics-cert"}':
+              .: {}
+              'f:name': {}
+              'f:secret':
+                .: {}
+                'f:defaultMode': {}
+                'f:optional': {}
+                'f:secretName': {}
+            'k:{"name":"manager-config"}':
+              .: {}
+              'f:configMap':
+                .: {}
+                'f:defaultMode': {}
+                'f:name': {}
+              'f:name': {}
+            'k:{"name":"webhook-cert"}':
+              .: {}
+              'f:name': {}
+              'f:secret':
+                .: {}
+                'f:defaultMode': {}
+                'f:items': {}
+                'f:secretName': {}
+          'f:containers':
+            'k:{"name":"kube-rbac-proxy"}':
+              'f:image': {}
+              'f:volumeMounts':
+                .: {}
+                'k:{"mountPath":"/apiserver.local.config/certificates"}':
+                  .: {}
+                  'f:mountPath': {}
+                  'f:name': {}
+                'k:{"mountPath":"/tmp/k8s-webhook-server/serving-certs"}':
+                  .: {}
+                  'f:mountPath': {}
+                  'f:name': {}
+                'k:{"mountPath":"/var/run/secrets/serving-cert"}':
+                  .: {}
+                  'f:mountPath': {}
+                  'f:name': {}
+              'f:terminationMessagePolicy': {}
+              .: {}
+              'f:resources': {}
+              'f:args': {}
+              'f:env':
+                .: {}
+                'k:{"name":"OPERATOR_CONDITION_NAME"}':
+                  .: {}
+                  'f:name': {}
+                  'f:value': {}
+              'f:securityContext':
+                .: {}
+                'f:allowPrivilegeEscalation': {}
+                'f:capabilities':
+                  .: {}
+                  'f:drop': {}
+              'f:terminationMessagePath': {}
+              'f:imagePullPolicy': {}
+              'f:ports':
+                .: {}
+                'k:{"containerPort":8443,"protocol":"TCP"}':
+                  .: {}
+                  'f:containerPort': {}
+                  'f:name': {}
+                  'f:protocol': {}
+              'f:name': {}
+            'k:{"name":"manager"}':
+              'f:image': {}
+              'f:volumeMounts':
+                .: {}
+                'k:{"mountPath":"/apiserver.local.config/certificates"}':
+                  .: {}
+                  'f:mountPath': {}
+                  'f:name': {}
+                'k:{"mountPath":"/controller_manager_config.yaml"}':
+                  .: {}
+                  'f:mountPath': {}
+                  'f:name': {}
+                  'f:subPath': {}
+                'k:{"mountPath":"/tmp/k8s-webhook-server/serving-certs"}':
+                  .: {}
+                  'f:mountPath': {}
+                  'f:name': {}
+              'f:terminationMessagePolicy': {}
+              .: {}
+              'f:resources': {}
+              'f:args': {}
+              'f:command': {}
+              'f:livenessProbe':
+                .: {}
+                'f:failureThreshold': {}
+                'f:httpGet':
+                  .: {}
+                  'f:path': {}
+                  'f:port': {}
+                  'f:scheme': {}
+                'f:initialDelaySeconds': {}
+                'f:periodSeconds': {}
+                'f:successThreshold': {}
+                'f:timeoutSeconds': {}
+              'f:env':
+                .: {}
+                'k:{"name":"OPERATOR_CONDITION_NAME"}':
+                  .: {}
+                  'f:name': {}
+                  'f:value': {}
+                'k:{"name":"RELATED_IMAGE_GATEWAY"}':
+                  .: {}
+                  'f:name': {}
+                  'f:value': {}
+                'k:{"name":"RELATED_IMAGE_LOKI"}':
+                  .: {}
+                  'f:name': {}
+                  'f:value': {}
+                'k:{"name":"RELATED_IMAGE_OPA"}':
+                  .: {}
+                  'f:name': {}
+                  'f:value': {}
+              'f:readinessProbe':
+                .: {}
+                'f:failureThreshold': {}
+                'f:httpGet':
+                  .: {}
+                  'f:path': {}
+                  'f:port': {}
+                  'f:scheme': {}
+                'f:initialDelaySeconds': {}
+                'f:periodSeconds': {}
+                'f:successThreshold': {}
+                'f:timeoutSeconds': {}
+              'f:securityContext':
+                .: {}
+                'f:allowPrivilegeEscalation': {}
+                'f:capabilities':
+                  .: {}
+                  'f:drop': {}
+              'f:terminationMessagePath': {}
+              'f:imagePullPolicy': {}
+              'f:ports':
+                .: {}
+                'k:{"containerPort":8080,"protocol":"TCP"}':
+                  .: {}
+                  'f:containerPort': {}
+                  'f:name': {}
+                  'f:protocol': {}
+                'k:{"containerPort":9443,"protocol":"TCP"}':
+                  .: {}
+                  'f:containerPort': {}
+                  'f:name': {}
+                  'f:protocol': {}
+              'f:name': {}
+          'f:dnsPolicy': {}
+          'f:serviceAccount': {}
+          'f:restartPolicy': {}
+          'f:schedulerName': {}
+          'f:nodeSelector': {}
+          'f:terminationGracePeriodSeconds': {}
+          'f:serviceAccountName': {}
+          'f:enableServiceLinks': {}
+          'f:securityContext':
+            .: {}
+            'f:runAsNonRoot': {}
+            'f:seccompProfile':
+              .: {}
+              'f:type': {}
+    - manager: multus-daemon
+      operation: Update
+      apiVersion: v1
+      time: '2025-04-25T06:42:14Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:k8s.v1.cni.cncf.io/network-status': {}
+      subresource: status
+    - manager: kubelet
+      operation: Update
+      apiVersion: v1
+      time: '2025-04-25T06:42:43Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          'f:conditions':
+            'k:{"type":"ContainersReady"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+            'k:{"type":"Initialized"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+            'k:{"type":"PodReadyToStartContainers"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+            'k:{"type":"Ready"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+          'f:containerStatuses': {}
+          'f:hostIP': {}
+          'f:hostIPs': {}
+          'f:phase': {}
+          'f:podIP': {}
+          'f:podIPs':
+            .: {}
+            'k:{"ip":"10.131.0.11"}':
+              .: {}
+              'f:ip': {}
+          'f:startTime': {}
+      subresource: status
+  namespace: openshift-operators-redhat
+  ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: loki-operator-controller-manager-69b5c65b64
+      uid: 0a32380b-d33b-42d9-a6ba-e5b9b25dffd2
+      controller: true
+      blockOwnerDeletion: true
+  labels:
+    app.kubernetes.io/managed-by: operator-lifecycle-manager
+    app.kubernetes.io/name: loki-operator
+    app.kubernetes.io/part-of: cluster-logging
+    name: loki-operator-controller-manager
+    pod-template-hash: 69b5c65b64
+spec:
+  nodeSelector:
+    kubernetes.io/os: linux
+  restartPolicy: Always
+  serviceAccountName: loki-operator-controller-manager
+  imagePullSecrets:
+    - name: loki-operator-controller-manager-dockercfg-pgwt7
+  priority: 0
+  schedulerName: default-scheduler
+  enableServiceLinks: true
+  terminationGracePeriodSeconds: 10
+  preemptionPolicy: PreemptLowerPriority
+  nodeName: ip-10-0-3-129.us-east-2.compute.internal
+  securityContext:
+    seLinuxOptions:
+      level: 's0:c32,c29'
+    runAsNonRoot: true
+    fsGroup: 1001050000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - resources: {}
+      readinessProbe:
+        httpGet:
+          path: /readyz
+          port: 8081
+          scheme: HTTP
+        initialDelaySeconds: 5
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      name: manager
+      command:
+        - /manager
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8081
+          scheme: HTTP
+        initialDelaySeconds: 15
+        timeoutSeconds: 1
+        periodSeconds: 20
+        successThreshold: 1
+        failureThreshold: 3
+      env:
+        - name: RELATED_IMAGE_LOKI
+          value: 'registry.redhat.io/openshift-logging/logging-loki-rhel9@sha256:d5707e20792d17fde8476bf7575ef8abfa94bdc8cb30c3d86e6bb3e1990be486'
+        - name: RELATED_IMAGE_GATEWAY
+          value: 'registry.redhat.io/openshift-logging/lokistack-gateway-rhel9@sha256:7e7d321f28a32a5b1a69fd863ec3adbee79a3e164abbd67fdc920d2a10234545'
+        - name: RELATED_IMAGE_OPA
+          value: 'registry.redhat.io/openshift-logging/opa-openshift-rhel9@sha256:97c9b5430c3edd51894e3fedb086f6ca06d18dcc898315360e7854aa5226e380'
+        - name: OPERATOR_CONDITION_NAME
+          value: loki-operator.v6.2.1
+      securityContext:
+        capabilities:
+          drop:
+            - ALL
+        runAsUser: 1001050000
+        allowPrivilegeEscalation: false
+      ports:
+        - name: webhook-server
+          containerPort: 9443
+          protocol: TCP
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: manager-config
+          mountPath: /controller_manager_config.yaml
+          subPath: controller_manager_config.yaml
+        - name: apiservice-cert
+          mountPath: /apiserver.local.config/certificates
+        - name: webhook-cert
+          mountPath: /tmp/k8s-webhook-server/serving-certs
+        - name: kube-api-access-k5hw6
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePolicy: File
+      image: 'registry.redhat.io/openshift-logging/loki-rhel9-operator@sha256:cb628bbe29488d11135e54c4203a83aeec777c445a96f44291b94e106db3bebf'
+      args:
+        - '--config=controller_manager_config.yaml'
+    - resources: {}
+      terminationMessagePath: /dev/termination-log
+      name: kube-rbac-proxy
+      env:
+        - name: OPERATOR_CONDITION_NAME
+          value: loki-operator.v6.2.1
+      securityContext:
+        capabilities:
+          drop:
+            - ALL
+        runAsUser: 1001050000
+        allowPrivilegeEscalation: false
+      ports:
+        - name: https
+          containerPort: 8443
+          protocol: TCP
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: loki-operator-metrics-cert
+          mountPath: /var/run/secrets/serving-cert
+        - name: apiservice-cert
+          mountPath: /apiserver.local.config/certificates
+        - name: webhook-cert
+          mountPath: /tmp/k8s-webhook-server/serving-certs
+        - name: kube-api-access-k5hw6
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePolicy: File
+      image: 'registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:56e7a0158a713c70765ead847732db4e5f8439aacf31e9a4a22672b583028064'
+      args:
+        - '--secure-listen-address=0.0.0.0:8443'
+        - '--upstream=http://127.0.0.1:8080/'
+        - '--logtostderr=true'
+        - '--tls-cert-file=/var/run/secrets/serving-cert/tls.crt'
+        - '--tls-private-key-file=/var/run/secrets/serving-cert/tls.key'
+        - '--tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA256'
+        - '--tls-min-version=VersionTLS12'
+        - '--v=0'
+  serviceAccount: loki-operator-controller-manager
+  volumes:
+    - name: manager-config
+      configMap:
+        name: loki-operator-manager-config
+        defaultMode: 420
+    - name: loki-operator-metrics-cert
+      secret:
+        secretName: loki-operator-metrics
+        defaultMode: 420
+        optional: true
+    - name: apiservice-cert
+      secret:
+        secretName: loki-operator-controller-manager-service-cert
+        items:
+          - key: tls.crt
+            path: apiserver.crt
+          - key: tls.key
+            path: apiserver.key
+        defaultMode: 420
+    - name: webhook-cert
+      secret:
+        secretName: loki-operator-controller-manager-service-cert
+        items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+        defaultMode: 420
+    - name: kube-api-access-k5hw6
+      projected:
+        sources:
+          - serviceAccountToken:
+              expirationSeconds: 3607
+              path: token
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+          - downwardAPI:
+              items:
+                - path: namespace
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+          - configMap:
+              name: openshift-service-ca.crt
+              items:
+                - key: service-ca.crt
+                  path: service-ca.crt
+        defaultMode: 420
+  dnsPolicy: ClusterFirst
+  tolerations:
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+status:
+  containerStatuses:
+    - restartCount: 2
+      started: true
+      ready: true
+      name: kube-rbac-proxy
+      state:
+        running:
+          startedAt: '2025-04-25T06:42:19Z'
+      volumeMounts:
+        - name: loki-operator-metrics-cert
+          mountPath: /var/run/secrets/serving-cert
+        - name: apiservice-cert
+          mountPath: /apiserver.local.config/certificates
+        - name: webhook-cert
+          mountPath: /tmp/k8s-webhook-server/serving-certs
+        - name: kube-api-access-k5hw6
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+          recursiveReadOnly: Disabled
+      imageID: 'registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:56e7a0158a713c70765ead847732db4e5f8439aacf31e9a4a22672b583028064'
+      image: 'registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:56e7a0158a713c70765ead847732db4e5f8439aacf31e9a4a22672b583028064'
+      lastState: {}
+      containerID: 'cri-o://5dbdfab49962fe7786d0098b88a8aaacff86c2f47d94256e76cdf4f9fb5dfc86'
+    - restartCount: 2
+      started: true
+      ready: true
+      name: manager
+      state:
+        running:
+          startedAt: '2025-04-25T06:42:16Z'
+      volumeMounts:
+        - name: manager-config
+          mountPath: /controller_manager_config.yaml
+        - name: apiservice-cert
+          mountPath: /apiserver.local.config/certificates
+        - name: webhook-cert
+          mountPath: /tmp/k8s-webhook-server/serving-certs
+        - name: kube-api-access-k5hw6
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+          recursiveReadOnly: Disabled
+      imageID: 'registry.redhat.io/openshift-logging/loki-rhel9-operator@sha256:cb628bbe29488d11135e54c4203a83aeec777c445a96f44291b94e106db3bebf'
+      image: 'registry.redhat.io/openshift-logging/loki-rhel9-operator@sha256:cb628bbe29488d11135e54c4203a83aeec777c445a96f44291b94e106db3bebf'
+      lastState: {}
+      containerID: 'cri-o://b963a3cd09f897ddedfde58bef286c7cb1e88eeef9fea5925bd190ec8226d11e'
+  qosClass: BestEffort
+  hostIPs:
+    - ip: 10.0.3.129
+  podIPs:
+    - ip: 10.131.0.11
+  podIP: 10.131.0.11
+  hostIP: 10.0.3.129
+  startTime: '2025-04-24T09:48:01Z'
+  conditions:
+    - type: PodReadyToStartContainers
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2025-04-25T06:42:19Z'
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2025-04-24T09:48:01Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2025-04-25T06:42:43Z'
+    - type: ContainersReady
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2025-04-25T06:42:43Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2025-04-24T09:48:01Z'
+  phase: Running
